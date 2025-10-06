@@ -1,0 +1,37 @@
+{
+  "botium": {
+    "Capabilities": {
+      "PROJECTNAME": "Strands Agents LLM Chatbot Test",
+      "CONTAINERMODE": "simplerest",
+      "SIMPLEREST_URL": "http://localhost:9000/v1/chat",
+      "SIMPLEREST_METHOD": "POST",
+      "SIMPLEREST_BODY_TEMPLATE": {
+        "query": "{{msg.messageText}}"
+      },
+      "globalArgs": {
+        "similarityThreshold": 0.3,
+        "embeddingModel": "Xenova/all-MiniLM-L6-v2",
+        "logDetailedResults": true
+      },
+      "SIMPLEREST_HEADERS_TEMPLATE": {
+        "Authorization": "${AUTHORIZATION_TOKEN}",
+        "Content-Type": "application/json",
+        "X-Session-Unique-Id": "${UNIQUE_SESSION_ID}"
+      },
+      "SIMPLEREST_RESPONSE_JSONPATH": "$.message",
+      "ASSERTERS": [
+        {
+          "ref": "COSINE_SIMILARITY",
+          "src": "./asserters/CosineSimilarityAsserter.js",
+          "global": true,
+          "args": {
+            "threshold": 0.8,
+            "model_name": "Xenova/all-MiniLM-L6-v2"
+          }
+        }
+      ]
+    },
+    "Sources": {},
+    "Envs": {}
+  }
+}
