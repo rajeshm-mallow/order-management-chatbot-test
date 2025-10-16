@@ -4,3 +4,8 @@ Hi
 #bot
 COSINE_SIMILARITY How can I assist you with your orders?
 
+#me
+How are you?
+
+#bot
+COSINE_SIMILARITY I am good, thank. How can I assist you with your orders today?
