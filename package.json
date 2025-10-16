@@ -12,6 +12,7 @@
     "botium-bindings": "^2.1.14",
     "botium-connector-echo": "latest",
     "botium-core": "^1.13.0",
+    "dotenv-cli": "^10.0.0",
     "mocha": "^11.7.2"
   },
   "botium": {
@@ -31,6 +32,7 @@
     "generate-dataset": "python3 ./scripts/generate_dataset.py",
     "build-bundle": "node ./scripts/build_test_bundle.js",
     "smoke": "botium-cli run --convos ./tests/secure_examples --output ./reports/smoke.json --format json",
-    "report-html": "botium-cli report html --input ./reports/botium-results.json --output ./reports/html-report"
+    "report-html": "botium-cli report html --input ./reports/botium-results.json --output ./reports/html-report",
+    "test:botium": "if [ -f .env ]; then dotenv -e .env -- botium-cli run --config ./botium.json --convos ./spec/convo; else botium-cli run --config ./botium.json --convos ./spec/convo; fi"
   }
 }

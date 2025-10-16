@@ -1,1 +1,2 @@
-# order-management-chatbot-test
+# command to run tests
+``npm run test:botium``

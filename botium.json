@@ -3,20 +3,24 @@
     "Capabilities": {
       "PROJECTNAME": "Strands Agents LLM Chatbot Test",
       "CONTAINERMODE": "simplerest",
-      "SIMPLEREST_URL": "http://localhost:9000/v1/chat",
+
+      "SIMPLEREST_START_HOOK": "./hooks/create-session-hook.js",
+
+      "SIMPLEREST_URL": "{{#fnc.env}}CHATBOT_SERVER_URL{{/fnc.env}}/api/v1/chat",
       "SIMPLEREST_METHOD": "POST",
       "SIMPLEREST_BODY_TEMPLATE": {
         "query": "{{msg.messageText}}"
       },
+      "SIMPLEREST_HEADERS_TEMPLATE": {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer {{#fnc.env}}AUTHORIZATION_TOKEN{{/fnc.env}}",
+        "X-Session-Unique-Id": "{{context.sessionId}}",
+        "X-User-UUID": "{{#fnc.env}}USER_UUID{{/fnc.env}}"
+      },
       "globalArgs": {
-        "similarityThreshold": 0.3,
+        "similarityThreshold": "0.8",
         "embeddingModel": "Xenova/all-MiniLM-L6-v2",
         "logDetailedResults": true
-      },
-      "SIMPLEREST_HEADERS_TEMPLATE": {
-        "Authorization": "${AUTHORIZATION_TOKEN}",
-        "Content-Type": "application/json",
-        "X-Session-Unique-Id": "${UNIQUE_SESSION_ID}"
       },
       "SIMPLEREST_RESPONSE_JSONPATH": "$.message",
       "ASSERTERS": [
@@ -25,13 +29,11 @@
           "src": "./asserters/CosineSimilarityAsserter.js",
           "global": true,
           "args": {
-            "threshold": 0.8,
+            "threshold": "0.8",
             "model_name": "Xenova/all-MiniLM-L6-v2"
           }
         }
       ]
-    },
-    "Sources": {},
-    "Envs": {}
+    }
   }
 }
