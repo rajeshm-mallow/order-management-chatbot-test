@@ -33,6 +33,7 @@
     "build-bundle": "node ./scripts/build_test_bundle.js",
     "smoke": "botium-cli run --convos ./tests/secure_examples --output ./reports/smoke.json --format json",
     "report-html": "botium-cli report html --input ./reports/botium-results.json --output ./reports/html-report",
-    "test:botium": "if [ -f .env ]; then dotenv -e .env -- botium-cli run --config ./botium.json --convos ./spec/convo; else botium-cli run --config ./botium.json --convos ./spec/convo; fi"
+    "test:botium": "if [ -f .env ]; then dotenv -e .env -- botium-cli run --config ./botium.json --convos ./spec/convo; else botium-cli run --config ./botium.json --convos ./spec/convo; fi",
+    "test:botium:parallel": "if [ -f .env ]; then find ./spec/convo -type f -name '*.txt' | xargs -P 4 -I {} dotenv -e .env -- botium-cli run --config ./botium.json --convos {}; else find ./spec/convo -type f -name '*.txt' | xargs -P 4 -I {} botium-cli run --config ./botium.json --convos {}; fi"
   }
 }
