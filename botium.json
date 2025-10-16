@@ -3,9 +3,9 @@
     "Capabilities": {
       "PROJECTNAME": "Strands Agents LLM Chatbot Test",
       "CONTAINERMODE": "simplerest",
-
+      "WAITFORBOTTIMEOUT": 60000,
+      "SIMPLEREST_TIMEOUT": 60000,
       "SIMPLEREST_START_HOOK": "./hooks/create-session-hook.js",
-
       "SIMPLEREST_URL": "{{#fnc.env}}CHATBOT_SERVER_URL{{/fnc.env}}/api/v1/chat",
       "SIMPLEREST_METHOD": "POST",
       "SIMPLEREST_BODY_TEMPLATE": {
@@ -16,11 +16,6 @@
         "Authorization": "Bearer {{#fnc.env}}AUTHORIZATION_TOKEN{{/fnc.env}}",
         "X-Session-Unique-Id": "{{context.sessionId}}",
         "X-User-UUID": "{{#fnc.env}}USER_UUID{{/fnc.env}}"
-      },
-      "globalArgs": {
-        "similarityThreshold": "0.8",
-        "embeddingModel": "Xenova/all-MiniLM-L6-v2",
-        "logDetailedResults": true
       },
       "SIMPLEREST_RESPONSE_JSONPATH": "$.message",
       "ASSERTERS": [

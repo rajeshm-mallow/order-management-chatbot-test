@@ -2,10 +2,10 @@
 Hi
 
 #bot
-COSINE_SIMILARITY How can I assist you with your orders?
+COSINE_SIMILARITY Hello! How can I assist you with your orders today?
 
 #me
 How are you?
 
 #bot
-COSINE_SIMILARITY I am good, thank. How can I assist you with your orders today?
+COSINE_SIMILARITY I'm just a chatbot, so I don't have feelings, but I'm here and ready to help you with your orders. How can I assist you today?

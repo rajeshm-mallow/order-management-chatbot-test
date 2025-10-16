@@ -1,4 +1,5 @@
 #me
 Hello
 
+#bot
 COSINE_SIMILARITY Hello there, how can I assist you today with your orders?
