@@ -2,4 +2,4 @@
 Hello
 
 #bot
-COSINE_SIMILARITY Hello there, how can I assist you today with your orders?
+LLM_BASED_ASSERTER Hello there, how can I assist you today with your orders?

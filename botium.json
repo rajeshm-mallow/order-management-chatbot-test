@@ -20,12 +20,12 @@
       "SIMPLEREST_RESPONSE_JSONPATH": "$.message",
       "ASSERTERS": [
         {
-          "ref": "COSINE_SIMILARITY",
-          "src": "./asserters/CosineSimilarityAsserter.js",
+          "ref": "LLM_BASED_ASSERTER",
+          "src": "./asserters/LLMBasedAsserter.js",
           "global": true,
           "args": {
-            "threshold": "0.8",
-            "model_name": "Xenova/all-MiniLM-L6-v2"
+            "mode": "score",
+            "passing_score": 80
           }
         }
       ]
