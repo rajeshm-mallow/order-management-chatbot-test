@@ -12,7 +12,7 @@ module.exports = async ({ container, context }) => {
         request({
             url: `${process.env.CHATBOT_SERVER_URL}/api/v1/session`,
             method: "POST",
-            headers: { "X-User-UUID": userUuid }
+            headers: { "auth-uuid": userUuid }
         }, (err, res, body) => {
             if (err) return reject(err);
             try {

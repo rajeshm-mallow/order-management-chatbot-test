@@ -13,9 +13,10 @@
       },
       "SIMPLEREST_HEADERS_TEMPLATE": {
         "Content-Type": "application/json",
-        "Authorization": "Bearer {{#fnc.env}}AUTHORIZATION_TOKEN{{/fnc.env}}",
         "X-Session-Unique-Id": "{{context.sessionId}}",
-        "X-User-UUID": "{{#fnc.env}}USER_UUID{{/fnc.env}}"
+        "auth-uuid": "{{#fnc.env}}USER_UUID{{/fnc.env}}",
+        "client-uuid": "{{#fnc.env}}CLIENT_UUID{{/fnc.env}}",
+        "auth-email": "{{#fnc.env}}USER_EMAIL{{/fnc.env}}"
       },
       "SIMPLEREST_RESPONSE_JSONPATH": "$.message",
       "ASSERTERS": [
