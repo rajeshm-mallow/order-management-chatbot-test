@@ -15,8 +15,6 @@ module.exports = class LLMBasedAsserter {
 
 
   async assertConvoStep({ convo, convoStep, args, isGlobal, botMsg }) {
-
-    console.log('LLMBasedAsserter args: ', args);
     try {
       if (!args || args.length === 0) {
         console.log('LLMBasedAsserter: No expected text provided — skipping.');
@@ -24,7 +22,10 @@ module.exports = class LLMBasedAsserter {
       }
 
       const expectedResponse = args[0];
+      console.log('\x1b[34m%s\x1b[0m', 'Expected response: ', expectedResponse);
+
       const actualResponse = botMsg.messageText;
+      console.log('\x1b[34m%s\x1b[0m', 'Actual response: ', actualResponse);
 
       if (!expectedResponse || !actualResponse) {
         throw new Error('Both expected and actual responses must be non-empty strings');
