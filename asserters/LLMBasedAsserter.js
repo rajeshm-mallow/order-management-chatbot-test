@@ -10,43 +10,102 @@ module.exports = class LLMBasedAsserter {
     this.bedrockClient = new BedrockRuntimeClient({ region: process.env.AWS_REGION || 'eu-west-2' });
     this.mode = globalArgs.mode || 'score';
     this.passingScore = globalArgs.passing_score || 80;
+  }
 
+
+  getBasePrompt() {
+    return `You are an expert evaluator testing chatbot response quality.
+
+      OUTPUT FORMAT:
+      Return ONLY valid JSON with this exact structure:
+      For score mode:
+      {"score": <number 0-100>, "reason": "<brief explanation>"}
+
+      For pass/fail mode:
+      {"result": "<PASS or FAIL>", "reason": "<brief explanation>"}
+
+      GENERAL GUIDELINES:
+      - Be strict with technical data (IDs, dates, amounts, status)
+      - Be lenient with natural language variations
+      - Assess based on the provided criteria, not generic standards`;
+  }
+
+  getDefaultComparisonCriteria() {
+    return `EVALUATION MODE: Expected vs Actual Comparison
+
+      Your task: Compare the EXPECTED response against the ACTUAL chatbot response.
+
+      EVALUATION CRITERIA:
+      1. Semantic Equivalence: Do both responses convey the same core message?
+      2. Factual Accuracy: Does the actual response contain all key facts from expected response?
+      3. Completeness: For lists/data (orders, bookings, etc.), are all important details present?
+      4. Intent Match: Does the actual response fulfill the same user need as expected?
+
+      CRITICAL FOR TECHNICAL RESPONSES:
+      - All data points must be accurate (IDs, dates, amounts, status)
+      - List items must match (order names/numbers/details)
+      - No missing key information
+
+      SCORING GUIDE:
+      - 90-100: Perfect match - same meaning, all details present
+      - 70-89: Good match - same meaning, minor details missing/different
+      - 50-69: Partial match - similar intent but missing important details
+      - 0-49: Poor match - different meaning or critical information missing`;
   }
 
 
   async assertConvoStep({ convo, convoStep, args, isGlobal, botMsg }) {
     try {
       if (!args || args.length === 0) {
-        console.log('LLMBasedAsserter: No expected text provided — skipping.');
         return Promise.resolve();
       }
 
-      const expectedResponse = args[0];
-      console.log('\x1b[34m%s\x1b[0m', 'Expected response: ', expectedResponse);
-
+      const assertionInput = args[0];
       const actualResponse = botMsg.messageText;
-      console.log('\x1b[34m%s\x1b[0m', 'Actual response: ', actualResponse);
+      let result;
 
-      if (!expectedResponse || !actualResponse) {
-        throw new Error('Both expected and actual responses must be non-empty strings');
+      if (assertionInput.startsWith('EXPECTED_RESPONSE:')) {
+        console.log('\x1b[36m%s\x1b[0m', 'Mode: EXPECTED_RESPONSE (Compare Expected vs Actual)');
+
+        const expectedResponse = assertionInput.replace(/^EXPECTED_RESPONSE:\s*/, '').trim();
+        console.log('\x1b[34m%s\x1b[0m', 'Expected response: ', expectedResponse);
+
+        if (!expectedResponse || !actualResponse) {
+          throw new Error('Both expected and actual responses must be non-empty strings');
+        }
+
+        result = await this.evaluateExpectedVsActual(expectedResponse, actualResponse);
+
+      } else if (assertionInput.startsWith('CUSTOM_EVALUATION_PROMPT:')) {
+        console.log('\x1b[36m%s\x1b[0m', 'Mode: CUSTOM_EVALUATION_PROMPT (Custom criteria extends base)');
+
+        const customPrompt = assertionInput.replace(/^CUSTOM_EVALUATION_PROMPT:\s*/, '').trim();
+        result = await this.evaluateWithCustomPrompt(actualResponse, customPrompt);
+
+      } else {
+        throw new Error(
+          'Assertion must start with either "EXPECTED_RESPONSE:" or "CUSTOM_EVALUATION_PROMPT:". ' +
+          `Got: ${assertionInput.substring(0, 50)}...`
+        );
       }
-
-      const result = await this.evaluateWithBedrock(expectedResponse, actualResponse);
 
       console.log(`LLM evaluation result:`, result);
 
       if (this.mode === 'score') {
         const score = result.score;
-        if (isNaN(score)) throw new Error('Invalid score returned from LLM');
+        if (isNaN(score)) throw new Error('Invalid score returned from LJM');
 
         if (score < this.passingScore) {
           throw new Error(
-            `Score ${score} < passing score ${this.passingScore}. Expected: "${expectedResponse}" | Actual: "${actualResponse}"`
+            `Score ${score} < passing score ${this.passingScore}. ` +
+            `Reason: ${result.reason}`
           );
         }
       } else if (this.mode === 'passfail') {
         if (result.result !== 'PASS') {
-          throw new Error(`LLM judged as FAIL. Expected: "${expectedResponse}" | Actual: "${actualResponse}"`);
+          throw new Error(
+            `LJM judged as FAIL. Reason: ${result.reason}`
+          );
         }
       }
 
@@ -56,52 +115,33 @@ module.exports = class LLMBasedAsserter {
     }
   }
 
-  // === AWS Bedrock evaluator ===
-  async evaluateWithBedrock(expected, actual) {
-    const systemPrompt = `You are an expert evaluator testing chatbot response quality.
-
-Your task: Compare the EXPECTED response against the ACTUAL chatbot response to determine if they convey the same meaning and contain the same critical information.
-
-EVALUATION CRITERIA:
-1. Semantic Equivalence: Do both responses convey the same core message?
-2. Factual Accuracy: Does the actual response contain all key facts from expected response?
-3. Completeness: For lists/data (orders, bookings, etc.), are all important details present?
-4. Intent Match: Does the actual response fulfill the same user need as expected?
-
-IGNORE these differences:
-- Wording variations and paraphrasing
-- Stylistic differences (formal vs casual tone)
-- Extra helpful details not in expected (unless they contradict it)
-- Formatting differences
-
-CRITICAL for technical responses:
-- All data points must be accurate (IDs, dates, amounts, status)
-- List items must match (order names/numbers/details)
-- No missing key information
-
-OUTPUT FORMAT:
-Return ONLY valid JSON with this exact structure:
-
-For score mode:
-{"score": <number 0-100>, "reason": "<brief explanation>"}
-
-For pass/fail mode:
-{"result": "<PASS or FAIL>", "reason": "<brief explanation>"}
-
-SCORING GUIDE (score mode):
-- 90-100: Perfect match - same meaning, all details present
-- 70-89: Good match - same meaning, minor details missing/different
-- 50-69: Partial match - similar intent but missing important details
-- 0-49: Poor match - different meaning or critical information missing
-
-Be strict with technical data (lists, IDs, numbers). Be lenient with natural language variations.`;
+  async evaluateExpectedVsActual(expected, actual) {
+    const basePrompt = this.getBasePrompt();
+    const criteria = this.getDefaultComparisonCriteria();
+    const fullPrompt = `${basePrompt}\n\n${criteria}`;
 
     const userPrompt = `Expected: "${expected}"
-Actual: "${actual}"
-Mode: "${this.mode}"
-Passing Score: ${this.passingScore}`;
+    Actual: "${actual}"
+    Mode: "${this.mode}"
+    Passing Score: ${this.passingScore}`;
 
-    // Nova models use the messages format
+    return this.callBedrock(fullPrompt, userPrompt);
+  }
+
+  async evaluateWithCustomPrompt(actual, customPrompt) {
+    const basePrompt = this.getBasePrompt();
+
+    const fullPrompt = `${basePrompt}\n\n${customPrompt}`;
+
+    const userPrompt = `Actual Response: "${actual}"
+      Mode: "${this.mode}"
+      Passing Score: ${this.passingScore}`;
+
+    return this.callBedrock(fullPrompt, userPrompt);
+  }
+
+
+  async callBedrock(systemPrompt, userPrompt) {
     const body = JSON.stringify({
       messages: [
         {
@@ -128,8 +168,7 @@ Passing Score: ${this.passingScore}`;
 
     const response = await this.bedrockClient.send(command);
     const responseBody = JSON.parse(new TextDecoder().decode(response.body));
-    
-    // Nova models return response in output.message.content format
+
     const rawText = responseBody.output?.message?.content?.[0]?.text?.trim() || '';
 
     try {

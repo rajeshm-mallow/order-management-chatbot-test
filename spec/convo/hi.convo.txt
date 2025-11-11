@@ -2,10 +2,16 @@
 Hi
 
 #bot
-LLM_BASED_ASSERTER Hello! How can I assist you with your orders today?
+LLM_BASED_ASSERTER EXPECTED_RESPONSE: Hello! How can I assist you with your orders today?
+
+#me
+Hi
+
+#bot
+LLM_BASED_ASSERTER CUSTOM_EVALUATION_PROMPT: check if the actual response intent match intent "greeting".
 
 #me
 How are you?
 
 #bot
-LLM_BASED_ASSERTER I'm just a chatbot, so I don't have feelings, but I'm here and ready to help you with your orders. How can I assist you today?
+LLM_BASED_ASSERTER CUSTOM_EVALUATION_PROMPT: check if the actual response intent match intent "greeting and assistance regarding booking".

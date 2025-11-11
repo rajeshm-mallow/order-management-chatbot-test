@@ -1,0 +1,5 @@
+#me
+List me all my interpreting bookings
+
+#bot
+LLM_BASED_ASSERTER CUSTOM_EVALUATION_PROMPT: The actual response should contain list of bookings with details such as booking id, status, etc.,. The actual response can also be with intent stating that there is no booking against the user. If none of this matches, provide a poor score
