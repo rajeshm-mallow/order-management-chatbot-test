@@ -62,6 +62,7 @@ module.exports = class LLMBasedAsserter {
 
       const assertionInput = args[0];
       const actualResponse = botMsg.messageText;
+      console.log('Actual Response:', actualResponse);
       let result;
 
       if (assertionInput.startsWith('EXPECTED_RESPONSE:')) {
