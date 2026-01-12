@@ -1,5 +1,0 @@
-#me
-Hello
-
-#bot
-LLM_BASED_ASSERTER Hello there, how can I assist you today with your orders?

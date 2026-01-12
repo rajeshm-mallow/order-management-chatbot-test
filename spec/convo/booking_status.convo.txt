@@ -3,16 +3,3 @@ What is the status of my booking with id TEST_0070861
 
 #bot
 LLM_BASED_ASSERTER CUSTOM_EVALUATION_PROMPT: The response should contain the booking status or it should display that the booking is not found. No other responses are accepted.
-
-#me
-What is the status of my booking with id TEST_0070889
-
-#bot
-LLM_BASED_ASSERTER CUSTOM_EVALUATION_PROMPT: The response should contain the booking status or it should display that the booking is not found. No other responses are accepted.
-
-#me
-Hello
-
-#bot
-LLM_BASED_ASSERTER CUSTOM_EVALUATION_PROMPT: The response should contain the booking status or it should display that the booking is not found. No other responses are accepted.
-

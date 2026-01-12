@@ -1,0 +1,5 @@
+#me
+lister toutes mes commandes
+
+#bot
+LLM_BASED_ASSERTER CUSTOM_EVALUATION_PROMPT: The actual response should clearly state that the user’s request is in an unsupported language and that the assistant can respond only in English. The response may also include a polite prompt inviting the user to continue in English or ask another question. If none of these conditions are met, provide a poor score.

@@ -1,0 +1,5 @@
+#me
+Hey cn u chk my last bukings infos?
+
+#bot
+LLM_BASED_ASSERTER CUSTOM_EVALUATION_PROMPT: The actual response should correctly infer the user’s intended meaning despite typographical, spelling, or minor grammatical errors, and provide a relevant and appropriate response aligned with that intent. If the response fails to recognize the intended meaning or responds irrelevantly, provide a poor score.

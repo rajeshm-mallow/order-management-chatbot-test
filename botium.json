@@ -14,9 +14,8 @@
       "SIMPLEREST_HEADERS_TEMPLATE": {
         "Content-Type": "application/json",
         "X-Session-Unique-Id": "{{context.sessionId}}",
-        "auth-uuid": "{{#fnc.env}}USER_UUID{{/fnc.env}}",
         "client-uuid": "{{#fnc.env}}CLIENT_UUID{{/fnc.env}}",
-        "auth-email": "{{#fnc.env}}USER_EMAIL{{/fnc.env}}"
+        "Cookie": "{{#fnc.env}}COOKIE{{/fnc.env}}"
       },
       "SIMPLEREST_RESPONSE_JSONPATH": "$.message",
       "ASSERTERS": [
